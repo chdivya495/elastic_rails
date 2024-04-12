@@ -1,17 +1,18 @@
-class Category < ApplicationRecord
-  belongs_to :vertical
+class Course < ApplicationRecord
+  belongs_to :category
+
   validates :name, uniqueness: { case_sensitive: false, scope: :vertical_id }
   validate :name_unique_across_verticals
-
+  
   include Elasticsearch::Model
   include Elasticsearch::Model::Callbacks
 
   index_name "categories_#{Rails.env}"
 
-  settings index: { number_of_shards: 1 } do
-    mappings dynamic: 'false' do
-      indexes :name, type: 'text'
-      indexes :state, type: 'keyword'
+    settings index: { number_of_shards: 1 } do
+      mappings dynamic: 'false' do
+        indexes :name, type: 'text'
+        indexes :state, type: 'keyword'
     end
   end
 
@@ -27,4 +28,3 @@ class Category < ApplicationRecord
     end
   end
 end
-
