@@ -3,51 +3,57 @@ module Api
     class CategoriesController < ApplicationController
       before_action :set_category, only: [:show, :update, :destroy]
 
-        def index
+      def index
+        @query = params[:query]
+
+        if @query.present?
+          @categories = Category.search(@query)
+        else
           @categories = Category.all
-          render json: @categories
         end
 
-        def show
-          render json: @category
-        end
-
-        def create
-          @category = Category.new(category_params)
-
-          if @category.save
-            render json: @category, status: :created, location: @category
-          else
-            render json: @category.errors, status: :unprocessable_entity
-          end
-        end
-
-        def update
-          if @category.update(category_params)
-            render json: @category
-          else
-            render json: @category.errors, status: :unprocessable_entity
-          end
-        end
-
-        def search
-        query = params[:query]
-        @categories = Category.where("name LIKE ?", "%#{query}%")
         render json: @categories
+      end
+
+      def show
+        render json: @category
+      end
+
+      def create
+        @category = Category.new(category_params)
+
+        if @category.save
+          render json: @category
+        else
+          render json: @category.errors, status: :unprocessable_entity
         end
+      end
 
-        def destroy
-          @category.destroy
+      def update
+        if @category.update(category_params)
+          render json: @category
+        else
+          render json: @category.errors, status: :unprocessable_entity
         end
+      end
+      
+      def destroy
+        if @category.destroy
+          render json: @category.errors, status: :unprocessable_entity
+        else
+          render json: "Category with id #{params[:id]} Successfully Deleted"
+        end
+      end
 
-        private
-          def set_category
-            @category = Category.find(params[:id])
-          end
+      private
 
-          def category_params
-            params.require(:category).permit(:name, :state, :vertical_id)
-          end
+      def set_category
+        @category = Category.find(params[:id])
+      end
+
+      def category_params
+        params.require(:category).permit(:name, :state, :vertical_id, courses_attributes: [:name, :author, :state])
+      end
     end
   end
 end

@@ -4,7 +4,14 @@ module Api
   		before_action :set_vertical, only: [:show, :update, :destroy]
 
 		  def index
-		    @verticals = Vertical.all
+				@query = params[:query]
+
+		    if @query.present?
+		      @verticals = Vertical.search(@query)
+		    else
+		      @verticals = Vertical.all
+		    end
+
 		    render json: @verticals
 		  end
 
@@ -16,7 +23,7 @@ module Api
 		    @vertical = Vertical.new(vertical_params)
 
 		    if @vertical.save
-		      render json: @vertical, status: :created, location: @vertical
+		      render json: @vertical
 		    else
 		      render json: @vertical.errors, status: :unprocessable_entity
 		    end
@@ -29,25 +36,24 @@ module Api
 		      render json: @vertical.errors, status: :unprocessable_entity
 		    end
 		  end
-
-		  def search
-        query = params[:query]
-        @verticals = Vertical.search(query).records
-        render json: @verticals
+		  
+		  def destroy
+        if @vertical.destroy
+          render json: @vertical.errors, status: :unprocessable_entity
+        else
+          render json: "Vertical with id #{params[:id]} Successfully Deleted"
+        end
       end
 
-		  def destroy
-		    @vertical.destroy
-		  end
-
 		  private
-		    def set_vertical
-		      @vertical = Vertical.find(params[:id])
-		    end
 
-		    def vertical_params
-		      params.require(:vertical).permit(:name)
-		    end
+	    def set_vertical
+	      @vertical = Vertical.find(params[:id])
+	    end
+
+	    def vertical_params
+        params.require(:vertical).permit(:name, categories_attributes: [:name, :state])
+	    end
 		end
 	end
 end

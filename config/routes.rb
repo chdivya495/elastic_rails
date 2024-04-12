@@ -1,15 +1,17 @@
 Rails.application.routes.draw do 
   namespace :api do
     namespace :v1 do
-      resources :verticals do
-        resources :categories
-        get 'search', to: 'verticals#search'
+      resources :users, except: [:index] do
+        collection do
+          post :login
+        end
       end
-      resources :categories do
-        resources :courses
-          get 'search', to: 'courses#search'
-          get 'search', to: 'categories#search'
-      end
+        resources :users, param: :_username
+  post '/auth/login', to: 'authentication#login'
+      resources :verticals
+      resources :categories
+      resources :courses
     end
   end
+
 end

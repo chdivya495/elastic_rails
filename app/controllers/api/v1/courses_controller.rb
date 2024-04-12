@@ -4,7 +4,13 @@ module Api
       before_action :set_course, only: [:show, :update, :destroy]
 
       def index
-        @courses = Course.all
+        @query = params[:query]
+        if @query.present?
+        @courses = Course.search(@query)
+        else
+        @courses = Courses.all
+        end
+
         render json: @courses
       end
 
@@ -16,7 +22,7 @@ module Api
         @course = Course.new(course_params)
 
         if @course.save
-          render json: @course, status: :created, location: @course
+          render json: @course
         else
           render json: @course.errors, status: :unprocessable_entity
         end
@@ -31,16 +37,15 @@ module Api
       end
 
       def destroy
-        @course.destroy
-      end
-
-      def search
-        query = params[:query]
-        @courses = Course.search(query).records
-        render json: @courses
+        if @course.destroy
+          render json: @course.errors, status: :unprocessable_entity
+        else
+          render json: "Course with id #{params[:id]} Successfully Deleted"
+        end
       end
 
       private
+
       def set_course
         @course = Course.find(params[:id])
       end
