@@ -1,15 +1,18 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     class CoursesController < ApplicationController
-      before_action :set_course, only: [:show, :update, :destroy]
+      before_action :set_course, only: %i[show update destroy]
 
       def index
         @query = params[:query]
-        if @query.present?
-        @courses = Course.search(@query)
-        else
-        @courses = Courses.all
-        end
+
+        @courses = if @query.present?
+                     Course.search(@query)
+                   else
+                     Course.all
+                   end
 
         render json: @courses
       end

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     class UsersController < ApplicationController
-      before_action :authorize_request, except: [:create, :login]
+      before_action :authorize_request, except: %i[create login]
       before_action :find_user, except: %i[create]
 
       def show
@@ -17,12 +19,12 @@ module Api
                  status: :unprocessable_entity
         end
       end
-      
+
       def update
-        unless @user.update(user_params)
-          render json: { errors: @user.errors.full_messages },
-                 status: :unprocessable_entity
-        end
+        return if @user.update(user_params)
+
+        render json: { errors: @user.errors.full_messages },
+               status: :unprocessable_entity
       end
 
       def destroy
@@ -33,8 +35,8 @@ module Api
 
       def find_user
         @user = User.find_by_username!(params[:_username])
-        rescue ActiveRecord::RecordNotFound
-          render json: { errors: 'User not found' }, status: :not_found
+      rescue ActiveRecord::RecordNotFound
+        render json: { errors: 'User not found' }, status: :not_found
       end
 
       def user_params

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Category < ApplicationRecord
   include Elasticsearch::Model
   include Elasticsearch::Model::Callbacks
@@ -6,7 +8,7 @@ class Category < ApplicationRecord
   has_many :courses
 
   validate :name_unique_across_verticals
-  
+
   accepts_nested_attributes_for :courses
 
   index_name "categories_#{Rails.env}"
@@ -18,21 +20,19 @@ class Category < ApplicationRecord
     end
   end
 
-
-  def as_indexed_json(options = {})
-    self.as_json(only: [:name, :state])
+  def as_indexed_json(_options = {})
+    as_json(only: %i[name state])
   end
 
   def as_json(options = {})
     super(options.merge(include: :courses))
   end
-  
+
   private
 
   def name_unique_across_verticals
-    if Vertical.exists?(name: name)
-      errors.add(:name, "A vertical with #{name} already exists")
-    end
+    return unless Vertical.exists?(name: name)
+
+    errors.add(:name, "A vertical with #{name} already exists")
   end
 end
-

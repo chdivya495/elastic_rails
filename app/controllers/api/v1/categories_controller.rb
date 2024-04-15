@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     class CategoriesController < ApplicationController
-      before_action :set_category, only: [:show, :update, :destroy]
+      before_action :set_category, only: %i[show update destroy]
 
       def index
         @query = params[:query]
 
-        if @query.present?
-          @categories = Category.search(@query)
-        else
-          @categories = Category.all
-        end
+        @categories = if @query.present?
+                        Category.search(@query)
+                      else
+                        Category.all
+                      end
 
         render json: @categories
       end
@@ -36,7 +38,7 @@ module Api
           render json: @category.errors, status: :unprocessable_entity
         end
       end
-      
+
       def destroy
         if @category.destroy
           render json: @category.errors, status: :unprocessable_entity
@@ -52,7 +54,7 @@ module Api
       end
 
       def category_params
-        params.require(:category).permit(:name, :state, :vertical_id, courses_attributes: [:name, :author, :state])
+        params.require(:category).permit(:name, :state, :vertical_id, courses_attributes: %i[name author state])
       end
     end
   end

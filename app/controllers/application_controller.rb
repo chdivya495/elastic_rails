@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::API
-	before_action :authorize_request
+  before_action :authorize_request
   def not_found
     render json: { error: 'not_found' }
   end
@@ -16,5 +18,4 @@ class ApplicationController < ActionController::API
       render json: { errors: e.message }, status: :unauthorized
     end
   end
-
 end
